@@ -1,0 +1,11 @@
+scan_filter_chain:
+- name: box
+  type: laser_filters/LaserScanBoxFilter
+  params:
+    box_frame: $(arg robot_name)/robot_body_link
+    min_x: 0.15
+    max_x: 0.5
+    min_y: -0.2
+    max_y: 0.2
+    min_z: 0
+    max_z: 0.5

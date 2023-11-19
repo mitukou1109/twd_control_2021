@@ -1,0 +1,5 @@
+base_frame_id  : $(arg robot_base_frame)
+odom_frame_id  : $(arg odom_frame)
+global_frame_id: $(arg map_frame)
+
+use_map_topic: true

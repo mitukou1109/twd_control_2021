@@ -1,0 +1,12 @@
+global_costmap:
+  global_frame: $(arg map_frame)
+  update_frequency: 1.0
+  publish_frequency: 1.0
+  inflation_layer:
+    inflation_radius: 0.5
+    # footprint: [
+    #   [0.35, 0.2],
+    #   [0.35, -0.2],
+    #   [-0.35, -0.2],
+    #   [-0.35, 0.2]
+    # ]

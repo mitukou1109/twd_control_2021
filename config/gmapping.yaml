@@ -1,0 +1,10 @@
+base_frame: $(arg robot_base_frame)
+odom_frame: $(arg odom_frame)
+map_frame:  $(arg map_frame)
+
+map_update_interval: 1.0
+temporalUpdate: -1.0
+xmin: -10.0
+xmax:  10.0
+ymin: -10.0
+ymax:  10.0

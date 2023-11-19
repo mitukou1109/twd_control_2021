@@ -1,0 +1,8 @@
+plugins:
+  - {name: static_layer, type: "costmap_2d::StaticLayer"}
+  - {name: inflation_layer, type: "costmap_2d::InflationLayer"}
+robot_base_frame: $(arg robot_base_frame)
+always_send_full_costmap: true
+static_layer:
+  subscribe_to_updates: true
+

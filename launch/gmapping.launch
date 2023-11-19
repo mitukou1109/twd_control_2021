@@ -1,0 +1,73 @@
+<launch>
+  <arg name="robot_name" value="agv"/>
+  <arg name="rvizconfig" value="$(find twd_control_2021)/rviz/navigation.rviz"/>
+  <arg name="config_dir" value="$(find twd_control_2021)/config"/>
+
+  <arg name="robot_type" value="towing"/>
+  <arg name="robot_urdf" value="$(find twd_control_2021)/robots/twd_robot_$(arg robot_type).urdf"/>
+  <arg name="world_type" value="corridor"/>
+  <arg name="map_frame" value="$(arg robot_name)/map"/>
+  <arg name="odom_frame" value="$(arg robot_name)/odom"/>
+  <arg name="robot_base_frame" value="$(arg robot_name)/base_link"/>
+  <arg name="coupler_frame" value="$(arg robot_name)/cart_rev_link"/>
+  <arg name="cart_base_frame" value="$(arg robot_name)/cart_body_link"/>
+  <arg name="joy_dev" default="/dev/input/js0"/>
+
+  <group ns="$(arg robot_name)">
+    <param name="robot_description" command="$(find xacro)/xacro '$(arg robot_urdf)' robot_name:=$(arg robot_name)"/>
+
+    <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" output="screen">
+      <param name="tf_prefix" value="$(arg robot_name)"/>
+    </node>
+
+    <node pkg="rosserial_python" type="serial_node.py" name="serial_node" args="_port:=/dev/ttyACM1" output="screen"/>
+
+    <node name="joy_node" pkg="joy" type="joy_node">
+      <param name="dev" value="$(arg joy_dev)"/>
+    </node>
+
+    <node name="front_lidar_scan_publisher" pkg="urg_node" type="urg_node" args="_serial_port:=/dev/ttyACM2">
+      <param name="tf_prefix" value="$(arg robot_name)"/>
+      <param name="frame_id" value="front_lidar_link"/>
+      <param name="angle_min" value="$(eval -120/180.*3.14)"/>
+      <param name="angle_max" value="$(eval 120/180.*3.14)"/>
+      <remap from="scan" to="front_lidar/scan"/>
+    </node>
+
+    <node name="rear_lidar_scan_publisher" pkg="urg_node" type="urg_node" args="_serial_port:=/dev/ttyACM0">
+      <param name="tf_prefix" value="$(arg robot_name)"/>
+      <param name="frame_id" value="rear_lidar_link"/>
+      <param name="angle_min" value="$(eval -30/180.*3.14)"/>
+      <param name="angle_max" value="$(eval 30/180.*3.14)"/>
+      <remap from="scan" to="rear_lidar/scan"/>
+    </node>
+
+    <node name="slam_gmapping" pkg="gmapping" type="slam_gmapping" clear_params="true">
+      <rosparam file="$(find twd_control_2021)/config/gmapping.yaml" command="load" subst_value="true"/>
+      <remap from="scan" to="front_lidar/scan"/>
+    </node>
+
+    <group if="$(eval robot_type=='towing')">
+      <node name="laser_filter_cart" pkg="laser_filters" type="scan_to_scan_filter_chain">
+        <rosparam file="$(arg config_dir)/scan_filter_cart.yaml" command="load" subst_value="true"/>
+        <remap from="scan" to="rear_lidar/scan"/>
+        <remap from="scan_filtered" to="rear_lidar/scan_filtered/cart"/>
+      </node>
+  
+      <node name="line_extraction_node" pkg="laser_line_extraction" type="line_extraction_node">
+        <rosparam file="$(arg config_dir)/laser_line_extraction.yaml" command="load" subst_value="true"/>
+        <remap from="line_segments" to="cart_lines"/>
+      </node>
+  
+      <node name="cart_yaw_publisher" pkg="agv_navigation" type="cart_yaw_publisher"/>
+    </group>
+
+    <node name="twd_robot_state_publisher" pkg="twd_control_2021" type="twd_robot_state_publisher">
+      <rosparam file="$(arg config_dir)/twd_robot_state_publisher.yaml" command="load" subst_value="true"/>
+    </node>
+
+    <node name="manual_controller" pkg="twd_control_2021" type="manual_controller">
+      <remap from="cmd_vel" to="twd_controller/cmd_vel"/>
+    </node>
+  </group>
+</launch>

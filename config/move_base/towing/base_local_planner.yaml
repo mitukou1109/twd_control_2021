@@ -1,0 +1,70 @@
+TrajectoryPlannerROS:
+  max_vel_x: 0.25
+  min_vel_x: 0.1
+  max_vel_theta: 1.0
+  min_vel_theta: -1.0
+  min_in_place_vel_theta: 0.5
+  acc_lim_theta: 1.0
+  acc_lim_x: 1.0
+
+  yaw_goal_tolerance: 0.05 # default: 0.05[rad]
+  xy_goal_tolerance: 0.10 # default: 0.10[m]
+  path_distance_bias: 1.0
+  
+  meter_scoring: true
+  holonomic_robot: false
+  
+TebLocalPlannerROS:
+  odom_topic: odom
+  map_frame : $(arg map_frame)
+
+  max_vel_x: 0.25
+  max_vel_x_backwards: 0.2
+  max_vel_theta: 1.0
+  acc_lim_theta: 1.0
+  acc_lim_x: 1.0
+  min_turning_radius: 1.5
+
+  footprint_model:
+    type: polygon
+    vertices: [
+      [0.450, 0.100],
+      [0.450, -0.100],
+      [0.150, -0.180],
+      [-0.150, -0.180],
+      [-0.150, 0.180],
+      [0.150, 0.180]
+    ]
+
+  xy_goal_tolerance: 0.1
+  yaw_goal_tolerance: 0.05
+
+  global_plan_overwrite_orientation: true # default: true
+
+  min_obstacle_dist: 0.1
+
+TowableLocalPlanner:
+  acc_lim_x: 1.0
+  acc_lim_theta: 1.0
+  max_vel_x: 0.1
+  min_vel_x: 0.1
+  max_vel_x_backwards: 0.1
+  max_vel_theta: 1.0
+  min_in_place_vel_theta: 0.5
+  following_mode: 1
+  
+  yaw_goal_tolerance: 0.05
+  xy_goal_tolerance: 0.10
+  latch_xy_goal_tolerance: true
+
+  distance_error_weight_a: 1.0
+  yaw_error_weight_a: 1.0
+  distance_error_weight_t: 1.0
+  yaw_error_weight_t: 1.0
+  rot_vel_weight: 0.5
+  rot_vel_var_weight: 0.1
+  prediction_horizon: 1.0
+
+  towing: true
+  coupler_frame: $(arg coupler_frame)
+  cart_base_frame: $(arg cart_base_frame)
